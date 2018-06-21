@@ -1,3 +1,2 @@
-hello\n
-this is a test\n
-on how to read in a file\n
+hello this is a test
+on how to read in a file
