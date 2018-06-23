@@ -6,7 +6,7 @@
 /*   By: tbenedic <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/06/08 13:05:22 by tbenedic          #+#    #+#             */
-/*   Updated: 2018/06/22 18:28:45 by tbenedic         ###   ########.fr       */
+/*   Updated: 2018/06/23 15:58:58 by tbenedic         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,45 +28,34 @@ size_t		read_line(char *buf)
 	return (i);
 }
 
-/*
-int		main(void)
-{
-	char str[] = "hello this is a test\non how to read in a file.\nNext, we will work on deliminating the reading \
-\ninto chunks of a new line.";
-	printf("%zu", read_line(str));
-	return (0);
-
-}
-*/
-
 int		get_next_line(const int fd, char **line)
 {
-	char	*buf;
-	char	*temp;
-	size_t	buffout;
-	int		i = 0;
-	size_t	j;
+	char		*buf;
+	static char	*temp;
+	size_t		buffout;
+	int			i = 0;
 
 	temp = "";	
 	buf = ft_strnew(BUFF_SIZE);
-	while (BUFF_SIZE > 0 && i < 10)
+	while (/*BUFF_SIZE > 0 ||*/ i < 5)
 	{
+		printf("buf %d is: \n%s\n",i ,temp);
 		buf = ft_strnew(BUFF_SIZE);
 		buffout = read(fd, buf, BUFF_SIZE);
 		if (ft_contain_char(buf, '\n') == 0)
 			temp = ft_strnjoin(temp, buf, BUFF_SIZE);
 		else
 		{
-			temp = ft_strnjoin(temp, buf, read_line(buf));
+			*line = ft_strnjoin(temp, buf, read_line(buf));
+			*line = temp;
+			printf("line is: \n%s\n", *line);
 			return (READ_SUCCESS);
-
 		}
-		printf("buf %d is: \n%s\n",i ,temp);
 		i++; //for the print out
 	}
 	if (temp == NULL)
 		return (READ_ERROR);
-	return (READ_SUCCESS);
+	return (READ_COMPLETE);
 }
 
 int		main(void)
@@ -82,9 +71,7 @@ int		main(void)
 		printf("Failed to create and open and read the file.\n");
 		return (1);
 	}
-
-
-	while ((strbuf = get_next_line(fd, &line)) == 1 || i < 5)
+	while ((strbuf = get_next_line(fd, &line)) == 0)
 	{
 		//	printf("fd is:\n%d\n", fd);
 		//	printf("return:\n%d\n", strbuf);
@@ -92,5 +79,5 @@ int		main(void)
 	}
 	close(fd);
 	return 0;
-	
+
 }
