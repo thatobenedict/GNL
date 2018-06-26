@@ -6,7 +6,7 @@
 /*   By: tbenedic <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/06/08 13:05:22 by tbenedic          #+#    #+#             */
-/*   Updated: 2018/06/26 16:48:20 by tbenedic         ###   ########.fr       */
+/*   Updated: 2018/06/21 16:12:56 by tbenedic         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,82 +18,38 @@
 #include <sys/types.h> //for the main
 #include <fcntl.h>
 
-static size_t		read_line(char *buf)
-{
-	size_t i;
-
-	i = 0;
-	while (buf[i] != '\n' && buf[i] != '\0')
-		i++;
-	return (i);
-}
-
-static char		*ft_change(char *line)
-{
-	char	*recycle;
-
-	recycle = ft_strchr(line, '\n');
-	recycle++;
-	return (recycle);
-}
-
-static size_t		ft_change_size(char *found)
-{
-	size_t len;
-	const char *str;
-
-   	str = ft_change(found);
-	len = ft_strlen(str);
-	return (len);
-}
 
 int		get_next_line(const int fd, char **line)
 {
 	char		*buf;
-	static char	*temp;
+	char		*temp;
 	size_t		buffout;
-	int			i = 0;
-	char		*hold;
+	static int	i;
+	static int	j;
 
-	if (temp == NULL)
-		temp = "";
+
 	buf = ft_strnew(BUFF_SIZE);
-	while (BUFF_SIZE > 0)
+	while (buffout > 0)
 	{
-		printf("buf %d is: \n|%s|\n",i ,temp);
-		buf = ft_strnew(BUFF_SIZE);
 		buffout = read(fd, buf, BUFF_SIZE);
-		if (ft_contain_char(buf, '\n') == 0)
-			temp = ft_strjoin(temp, buf);
-		else
-		{
-			hold = ft_strjoin(temp, buf);
-			*line = ft_strnjoin(temp, buf, read_line(buf));
-			printf("DELETE! The length of line is |%d|\n", ft_strlen(*line));
-			printf("DELETE! The length of read_line(buf) is |%zu|\n", read_line(buf));
-			printf("DELETE! (buf) is |%s|\n", buf);
-			free(temp);
-			temp = ft_strnew(ft_change_size(hold));
-			temp = ft_change(hold);
-			printf("\nline is: \n|%s|\n", *line);
-			printf("temp is: \n|%s|\n", temp);
-			if (temp == NULL)
-				return (READ_COMPLETE);
-			return (READ_SUCCESS);
-		}
-		i++; //for the print out
+		j = i;
+		while (buf[i] != '\0' && buf[i] != '\n')
+			i++;
+		temp = ft_strsub(buf, j, i - j);
+		printf("buf is: \n%s\n", temp);
 	}
 	if (temp == NULL)
-		return (READ_ERROR);
-	return (READ_COMPLETE);
+		return (0);
+	return (1);
 }
 
 int		main(void)
 {
 	int		fd;
 	int		strbuf;
+	//	char	*strbuf;
 	char	*line;
-	int 	i = 0;
+	int i = 0;
 
 	fd = open("file.txt", O_RDONLY, 0700);
 	if(fd == -1)
@@ -101,7 +57,7 @@ int		main(void)
 		printf("Failed to create and open and read the file.\n");
 		return (1);
 	}
-	while ((strbuf = get_next_line(fd, &line)) == 0)
+	while ((strbuf = get_next_line(fd, &line)) == 1 && i < 5 )
 	{
 		//	printf("fd is:\n%d\n", fd);
 		//	printf("return:\n%d\n", strbuf);
@@ -109,5 +65,4 @@ int		main(void)
 	}
 	close(fd);
 	return 0;
-
 }
